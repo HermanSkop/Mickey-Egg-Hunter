@@ -16,7 +16,7 @@ public class Egg extends ImageView {
         x = 0;
         y = 0;
         try {
-            this.setImage(new Image(new FileInputStream("egg2.png")));
+            this.setImage(new Image(new FileInputStream("egg.png")));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

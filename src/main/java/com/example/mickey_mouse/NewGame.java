@@ -27,15 +27,12 @@ public class NewGame extends Application{
     NewGame game;
     ImageView character = new ImageView();
     int currPos;
-    LinkedList<Egg> eggs;
     boolean alive = true;
     AnchorPane main;
 
     @Override
     public void start(Stage stage) throws Exception {
         main = new AnchorPane();
-        eggs = new LinkedList<>();
-        fillEgg(eggs);
         game = this;
 
         Image lbm = new Image(new FileInputStream("ltm.png"));
@@ -62,12 +59,6 @@ public class NewGame extends Application{
 
         runEggs();
         System.out.println("finish");
-    }
-    void fillEgg(LinkedList<Egg> l) {
-        for(int i = 0; i <20; i++){
-            l.add(new Egg());
-            l.getLast().x = (i+1)*20;
-        }
     }
     void changePosition(KeyEvent e) {
         try {
