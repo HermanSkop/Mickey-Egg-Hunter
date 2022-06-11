@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Mickey_Mouse.iml" filepath="$PROJECT_DIR$/Mickey_Mouse.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.base/javafx.base.iml" filepath="$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.base/javafx.base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.controls/javafx.controls.iml" filepath="$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.controls/javafx.controls.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.fxml/javafx.fxml.iml" filepath="$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.fxml/javafx.fxml.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.graphics/javafx.graphics.iml" filepath="$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.graphics/javafx.graphics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.media/javafx.media.iml" filepath="$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.media/javafx.media.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.swing/javafx.swing.iml" filepath="$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.swing/javafx.swing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.web/javafx.web.iml" filepath="$PROJECT_DIR$/../javafx-sdk-18.0.1/src/javafx.web/javafx.web.iml" />
+    </modules>
+  </component>
+</project>
