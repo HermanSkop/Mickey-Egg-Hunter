@@ -3,13 +3,7 @@ package com.example.mickey_mouse;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.WritableDoubleValue;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Point3D;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -18,16 +12,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.controlsfx.control.action.Action;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.security.Provider;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class NewGame extends Application{
     Timeline waveController;
@@ -39,6 +29,9 @@ public class NewGame extends Application{
     AnchorPane main;
     int hp;
     Stage stage;
+    int currEgg;
+
+    LinkedList<Egg> hpEggs;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -47,6 +40,10 @@ public class NewGame extends Application{
         game = this;
         score = new Label();
         hp = 4;
+        currEgg = 0;
+        hpEggs = new LinkedList<>();
+
+        createHpBar();
 
         Image lbm = new Image(new FileInputStream("ltm.png"));
         currPos = 1;
@@ -80,6 +77,26 @@ public class NewGame extends Application{
         runEggs();
         System.out.println("finish");
     }
+
+    private void createHpBar() {
+        hpEggs.add(new Egg());
+        hpEggs.add(new Egg());
+        hpEggs.add(new Egg());
+        hpEggs.add(new Egg());
+
+        AnchorPane.setLeftAnchor(hpEggs.get(0), 50.0);
+        AnchorPane.setLeftAnchor(hpEggs.get(1),100.0);
+        AnchorPane.setLeftAnchor(hpEggs.get(2),150.0);
+        AnchorPane.setLeftAnchor(hpEggs.get(3),200.0);
+        AnchorPane.setTopAnchor(hpEggs.get(0), 40.0);
+        AnchorPane.setTopAnchor(hpEggs.get(1), 40.0);
+        AnchorPane.setTopAnchor(hpEggs.get(2), 40.0);
+        AnchorPane.setTopAnchor(hpEggs.get(3), 40.0);
+
+        main.getChildren().addAll(hpEggs);
+
+    }
+
     void changePosition(KeyEvent e) {
         try {
             if (Objects.equals(e.getCharacter(), "q")) {
@@ -124,12 +141,7 @@ public class NewGame extends Application{
         path.getElements().add (new MoveTo(egg.x, egg.y));
         path.getElements().add (new LineTo(egg.tox, egg.toy));
 
-        RotateTransition rotateTransition = new RotateTransition();
-        rotateTransition.setDuration(Duration.millis(1000));
-        rotateTransition.setNode(egg);
-        rotateTransition.setByAngle(egg.rotateSide);
-        rotateTransition.setAutoReverse(false);
-        rotateTransition.play();
+        setRotation(egg);
 
         PathTransition pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.millis(1000));
@@ -139,15 +151,55 @@ public class NewGame extends Application{
         pathTransition.play();
         pathTransition.setOnFinished(e -> {
             if(currPos == egg.pos)successFall();
-            else failFall();
-            egg.setImage(null);
+            else {
+                try {
+                    failFall(egg);
+                } catch (FileNotFoundException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            //egg.setImage(null);
         });
 
     }
 
-    private void failFall() {
+    void setRotation(Egg egg){
+        RotateTransition rotateTransition = new RotateTransition();
+        rotateTransition.setDuration(Duration.millis(1000));
+        rotateTransition.setNode(egg);
+        rotateTransition.setByAngle(egg.rotateSide);
+        rotateTransition.setAutoReverse(false);
+        rotateTransition.play();
+    }
+
+    private void failFall(Egg egg) throws FileNotFoundException {
+         setBreakAnimation(egg);
+         setRotation(egg);
          hp--;
+         hpEggs.get(currEgg).setImage(new Image(new FileInputStream("begg.png")));
          if(hp==0)death();
+         else currEgg++;
+    }
+
+    private void setBreakAnimation(Egg egg) {
+        Path path = new Path();
+        path.getElements().add (new MoveTo(egg.tox, egg.toy));
+        path.getElements().add (new LineTo(egg.falltox, egg.falltoy));
+
+        PathTransition pathTransition = new PathTransition();
+        pathTransition.setDuration(Duration.millis(1000));
+        pathTransition.setNode(egg);
+        pathTransition.setPath(path);
+        pathTransition.setAutoReverse(false);
+        pathTransition.play();
+        pathTransition.setOnFinished(e -> {
+            try {
+                egg.setImage(new Image(new FileInputStream("begg.png")));
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            }
+        });
+
     }
 
     private void successFall() {
