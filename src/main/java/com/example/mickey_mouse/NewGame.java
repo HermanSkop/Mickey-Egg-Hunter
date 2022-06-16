@@ -158,7 +158,7 @@ public class NewGame extends Application{
         try {
             waveController.stop();
             stage.close();
-            new usernameWindow().start(new Stage());
+            new usernameWindow(Integer.parseInt(score.getText()), 1, 1).start(new Stage());
         } catch (Exception e) {
             e.printStackTrace();
         }

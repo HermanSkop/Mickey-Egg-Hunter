@@ -1,14 +1,12 @@
 package com.example.mickey_mouse;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
-import org.w3c.dom.events.MouseEvent;
 
 import java.io.IOException;
 
@@ -23,6 +21,14 @@ public class HelloApplication extends Application {
             try {
                 stage.close();
                 new NewGame().start(new Stage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        hs.setOnAction(e->{
+            com.example.mickey_mouse.Container container = new GetFromFile().getCont();
+            try {
+                new ScoresApplication(container).start(new Stage());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

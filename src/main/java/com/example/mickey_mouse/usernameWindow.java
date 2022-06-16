@@ -12,13 +12,25 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 public class usernameWindow extends Application {
+    TextArea area;
+    int score;
+    int time;
+    int difflv;
+
+    usernameWindow(int score, int time, int difflv){
+        this.score = score;
+        this.time = time;
+        this.difflv = difflv;
+    }
+
     @Override
     public void start(Stage stage) throws Exception {
         AnchorPane main = new AnchorPane();
-        TextArea area = new TextArea("Type here your name");
+        area = new TextArea("Type here your name");
         area.setWrapText(true);
-
 
         Button confirm = new Button("Confirm");
         area.setMaxSize(150,10);
@@ -33,16 +45,20 @@ public class usernameWindow extends Application {
         stage.setTitle("Over");
         stage.setResizable(false);
         stage.setScene(scene);
-        stage.show();        // confirm button should create object ExitScore to be saved
-       /* confirmName.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // actual saving process by ExitGame class
-                new SaveToFile().saveDmgToFile(Integer.parseInt(weaponField.getText()));
-                new SaveToFile().savePointsToFile(Integer.parseInt(PointsField.getText()));
-                new SaveToFile(new ExitScore(getUserName(), Integer.parseInt(PointsField.getText()), Integer.parseInt(timeField.getText()), startDifflvl));
-                userName.dispose();
+        stage.show();
+        confirm.setOnAction(e->{
+            // actual saving process by ExitGame class
+            new SaveToFile(new ExitScore(getUserName(), score, time, difflv));
+            stage.close();
+            try {
+                new HelloApplication().start(new Stage());
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
-        });*/
+        });
+    }
+
+    private String getUserName() {
+        return area.getText();
     }
 }
