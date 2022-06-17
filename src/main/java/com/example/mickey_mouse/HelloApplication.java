@@ -20,7 +20,7 @@ public class HelloApplication extends Application {
         ng.setOnAction(e->{
             try {
                 stage.close();
-                new NewGame().start(new Stage());
+                new ChooseMode().start(new Stage());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -51,7 +51,7 @@ public class HelloApplication extends Application {
         column.getChildren().add(exit);
 
         Scene scene = new Scene(main, 200, 150);
-        stage.setTitle("ZXC!");
+        stage.setTitle("Menu");
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();

@@ -25,11 +25,11 @@ public class NewGame extends Application{
     ImageView character = new ImageView();
     Label score;
     int currPos;
-    boolean alive = true;
     AnchorPane main;
     int hp;
     Stage stage;
     int currEgg;
+    boolean alive;
 
     LinkedList<Egg> hpEggs;
 
@@ -42,6 +42,7 @@ public class NewGame extends Application{
         hp = 4;
         currEgg = 0;
         hpEggs = new LinkedList<>();
+        alive = true;
 
         createHpBar();
 
@@ -74,7 +75,7 @@ public class NewGame extends Application{
         stage.show();
         Platform.setImplicitExit(false);
 
-        runEggs();
+        runEggs(ChooseMode.difflvl);
         System.out.println("finish");
     }
 
@@ -120,65 +121,61 @@ public class NewGame extends Application{
             System.out.println("One of the images is missed, please reinstall game!");
         }
     }
-    void runEggs()/*
+
+    void runEggs(int difficulty)/*
         Here is the main method that controls eggs' speed and quantity
      */ {
-        waveController = new Timeline(
-                new KeyFrame(Duration.seconds(1),
-                        event -> {
-                            Egg egg = new Egg();
-                            egg.setRandomPosition();
-                            AnchorPane.setTopAnchor(egg, egg.shift*-1);
-
-                            setFallAnimations(egg);
-                            main.getChildren().add(egg);
-                        }));
-        waveController.setCycleCount(Timeline.INDEFINITE);
-        waveController.play();
+        if (alive) {
+            waveController = new Timeline(
+                    new KeyFrame(Duration.millis((float)2000/difficulty),
+                            event -> {
+                                Egg egg = new Egg();
+                                egg.setRandomPosition();
+                                AnchorPane.setTopAnchor(egg, egg.shift * -1);
+                                setFallAnimations(egg, difficulty);
+                                main.getChildren().add(egg);
+                            }));
+            waveController.setCycleCount(10);
+            waveController.setOnFinished(e -> {
+                runEggs(difficulty+1);
+            });
+            waveController.play();
+        }
     }
-    void setFallAnimations(Egg egg){
+
+    void setFallAnimations(Egg egg, int difficulty){
         Path path = new Path();
         path.getElements().add (new MoveTo(egg.x, egg.y));
         path.getElements().add (new LineTo(egg.tox, egg.toy));
 
-        setRotation(egg);
+        setRotation(egg, difficulty);
 
         PathTransition pathTransition = new PathTransition();
-        pathTransition.setDuration(Duration.millis(1000));
+        pathTransition.setDuration(Duration.millis((float)2000/difficulty));
         pathTransition.setNode(egg);
         pathTransition.setPath(path);
         pathTransition.setAutoReverse(false);
         pathTransition.play();
         pathTransition.setOnFinished(e -> {
-            if(currPos == egg.pos)successFall();
+            if(currPos == egg.pos)successFall(egg);
             else {
                 try {
-                    failFall(egg);
+                    failFall(egg, difficulty);
                 } catch (FileNotFoundException ex) {
                     ex.printStackTrace();
                 }
             }
-            //egg.setImage(null);
         });
 
     }
 
-    void setRotation(Egg egg){
+    void setRotation(Egg egg, int difficulty){
         RotateTransition rotateTransition = new RotateTransition();
-        rotateTransition.setDuration(Duration.millis(1000));
+        rotateTransition.setDuration(Duration.millis((float)2000/difficulty));
         rotateTransition.setNode(egg);
         rotateTransition.setByAngle(egg.rotateSide);
         rotateTransition.setAutoReverse(false);
         rotateTransition.play();
-    }
-
-    private void failFall(Egg egg) throws FileNotFoundException {
-         setBreakAnimation(egg);
-         setRotation(egg);
-         hp--;
-         hpEggs.get(currEgg).setImage(new Image(new FileInputStream("begg.png")));
-         if(hp==0)death();
-         else currEgg++;
     }
 
     private void setBreakAnimation(Egg egg) {
@@ -202,15 +199,26 @@ public class NewGame extends Application{
 
     }
 
-    private void successFall() {
-         score.setText(String.valueOf(Integer.parseInt(score.getText())+1)); // making score +1
+    private void failFall(Egg egg, int difficulty) throws FileNotFoundException {
+        setBreakAnimation(egg);
+        setRotation(egg, difficulty);
+        hp--;
+        hpEggs.get(currEgg).setImage(new Image(new FileInputStream("begg.png")));
+        if(hp==0)death();
+        else currEgg++;
+    }
+
+    private void successFall(Egg egg) {
+        egg.setImage(null);
+        score.setText(String.valueOf(Integer.parseInt(score.getText())+1)); // making score +1
     }
 
     private void death() {
         try {
+            alive = false;
             waveController.stop();
             stage.close();
-            new usernameWindow(Integer.parseInt(score.getText()), 1, 1).start(new Stage());
+            new usernameWindow(Integer.parseInt(score.getText()), 1, ChooseMode.difflvl).start(new Stage());
         } catch (Exception e) {
             e.printStackTrace();
         }

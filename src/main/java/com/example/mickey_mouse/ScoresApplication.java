@@ -19,13 +19,12 @@ public class ScoresApplication extends Application {
     }
     @Override
     public void start(Stage stage) throws Exception {
-   //     BorderPane main = new BorderPane();w
         TextArea main = new TextArea();
         if(container!=null) main.setText(container.toString());
         main.setEditable(false);
 
         Scene scene = new Scene(main, 400, 150);
-        stage.setTitle("ZXC!");
+        stage.setTitle("Scores table");
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
