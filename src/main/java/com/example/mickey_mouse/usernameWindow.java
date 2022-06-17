@@ -31,9 +31,8 @@ public class usernameWindow extends Application {
         AnchorPane main = new AnchorPane();
         area = new TextArea("Type here your name");
         area.setWrapText(true);
-
-        Button confirm = new Button("Confirm");
         area.setMaxSize(150,10);
+        Button confirm = new Button("Confirm");
 
         AnchorPane.setTopAnchor(confirm, 75.0);
         AnchorPane.setTopAnchor(area, 20.0);
@@ -48,7 +47,7 @@ public class usernameWindow extends Application {
         stage.show();
         confirm.setOnAction(e->{
             // actual saving process by ExitGame class
-            new SaveToFile(new ExitScore(getUserName(), score, time, difflv));
+            new SaveToFile(new ExitScore(filter(getUserName()), score, time, difflv));
             stage.close();
             try {
                 new HelloApplication().start(new Stage());
@@ -60,5 +59,9 @@ public class usernameWindow extends Application {
 
     private String getUserName() {
         return area.getText();
+    }
+
+    String filter(String str){
+        return str.replaceAll("\n", " e");
     }
 }

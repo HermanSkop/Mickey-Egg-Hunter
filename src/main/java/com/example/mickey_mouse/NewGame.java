@@ -2,7 +2,6 @@ package com.example.mickey_mouse;
 
 import javafx.animation.*;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -20,14 +19,18 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class NewGame extends Application{
-    Timeline waveController;
+    Stage stage;
+    AnchorPane main;
     NewGame game;
+
+    Timeline waveController;
     ImageView character = new ImageView();
     Label score;
+    Label timer;
+    Label tname;
+    Label sname;
     int currPos;
-    AnchorPane main;
     int hp;
-    Stage stage;
     int currEgg;
     boolean alive;
 
@@ -38,27 +41,15 @@ public class NewGame extends Application{
         this.stage = stage;
         main = new AnchorPane();
         game = this;
-        score = new Label();
-        hp = 4;
-        currEgg = 0;
-        hpEggs = new LinkedList<>();
         alive = true;
 
-        createHpBar();
-
-        Image lbm = new Image(new FileInputStream("ltm.png"));
-        currPos = 1;
-        character.setImage(lbm);
-        AnchorPane.setTopAnchor(character, 310.0);
-        AnchorPane.setLeftAnchor(character, 280.0);
-        AnchorPane.setTopAnchor(score, 50.0);
-        AnchorPane.setRightAnchor(score,100.0);
-
-        score.setText("0");
-        score.setFont(new Font(20));
+        createHUD();
 
         main.getChildren().add(character);
         main.getChildren().add(score);
+        main.getChildren().add(timer);
+        main.getChildren().add(tname);
+        main.getChildren().add(sname);
 
         Scene scene = new Scene(main, 700, 500);
         scene.setOnKeyTyped(new EventHandler<KeyEvent>() {
@@ -73,13 +64,16 @@ public class NewGame extends Application{
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
-        Platform.setImplicitExit(false);
 
+        timeController();
         runEggs(ChooseMode.difflvl);
-        System.out.println("finish");
     }
 
     private void createHpBar() {
+        hpEggs = new LinkedList<>();
+        currEgg = 0;
+        hp = 4;
+
         hpEggs.add(new Egg());
         hpEggs.add(new Egg());
         hpEggs.add(new Egg());
@@ -89,13 +83,48 @@ public class NewGame extends Application{
         AnchorPane.setLeftAnchor(hpEggs.get(1),100.0);
         AnchorPane.setLeftAnchor(hpEggs.get(2),150.0);
         AnchorPane.setLeftAnchor(hpEggs.get(3),200.0);
-        AnchorPane.setTopAnchor(hpEggs.get(0), 40.0);
-        AnchorPane.setTopAnchor(hpEggs.get(1), 40.0);
-        AnchorPane.setTopAnchor(hpEggs.get(2), 40.0);
-        AnchorPane.setTopAnchor(hpEggs.get(3), 40.0);
+        AnchorPane.setTopAnchor(hpEggs.get(0), 43.0);
+        AnchorPane.setTopAnchor(hpEggs.get(1), 43.0);
+        AnchorPane.setTopAnchor(hpEggs.get(2), 43.0);
+        AnchorPane.setTopAnchor(hpEggs.get(3), 43.0);
 
         main.getChildren().addAll(hpEggs);
 
+    }
+    private void createTimer() {
+        timer = new Label("0");
+        timer.setFont(new Font(20));
+        tname = new Label("Timer:");
+        tname.setFont(new Font(20));
+
+        AnchorPane.setTopAnchor(timer, 50.0);
+        AnchorPane.setRightAnchor(timer,270.0);
+        AnchorPane.setTopAnchor(tname, 50.0);
+        AnchorPane.setRightAnchor(tname,300.0);
+    }
+    private void createScoreCounter() {
+        score = new Label("0");
+        score.setFont(new Font(20));
+        sname = new Label("Score:");
+        sname.setFont(new Font(20));
+
+        AnchorPane.setTopAnchor(score, 50.0);
+        AnchorPane.setRightAnchor(score,100.0);
+        AnchorPane.setTopAnchor(sname, 50.0);
+        AnchorPane.setRightAnchor(sname,130.0);
+    }
+    private void createCharacter() throws FileNotFoundException {
+        currPos = 1;
+        character.setImage(new Image(new FileInputStream("ltm.png")));
+        AnchorPane.setTopAnchor(character, 310.0);
+        AnchorPane.setLeftAnchor(character, 280.0);
+    }
+
+    private void createHUD() throws FileNotFoundException {
+        createHpBar();
+        createTimer();
+        createScoreCounter();
+        createCharacter();
     }
 
     void changePosition(KeyEvent e) {
@@ -143,12 +172,22 @@ public class NewGame extends Application{
         }
     }
 
+    void timeController() {
+        Timeline timeRaise = new Timeline(
+                new KeyFrame(Duration.seconds(1),
+                        event -> {
+                            timer.setText(String.valueOf(Integer.parseInt(timer.getText()) + 1));
+                        }));
+        timeRaise.setCycleCount(Animation.INDEFINITE);
+        timeRaise.play();
+    }
+
     void setFallAnimations(Egg egg, int difficulty){
         Path path = new Path();
         path.getElements().add (new MoveTo(egg.x, egg.y));
         path.getElements().add (new LineTo(egg.tox, egg.toy));
 
-        setRotation(egg, difficulty);
+        setEggRotation(egg, difficulty);
 
         PathTransition pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.millis((float)2000/difficulty));
@@ -169,7 +208,7 @@ public class NewGame extends Application{
 
     }
 
-    void setRotation(Egg egg, int difficulty){
+    void setEggRotation(Egg egg, int difficulty){
         RotateTransition rotateTransition = new RotateTransition();
         rotateTransition.setDuration(Duration.millis((float)2000/difficulty));
         rotateTransition.setNode(egg);
@@ -201,7 +240,7 @@ public class NewGame extends Application{
 
     private void failFall(Egg egg, int difficulty) throws FileNotFoundException {
         setBreakAnimation(egg);
-        setRotation(egg, difficulty);
+        setEggRotation(egg, difficulty);
         hp--;
         hpEggs.get(currEgg).setImage(new Image(new FileInputStream("begg.png")));
         if(hp==0)death();
@@ -218,7 +257,7 @@ public class NewGame extends Application{
             alive = false;
             waveController.stop();
             stage.close();
-            new usernameWindow(Integer.parseInt(score.getText()), 1, ChooseMode.difflvl).start(new Stage());
+            new usernameWindow(Integer.parseInt(score.getText()), Integer.parseInt(timer.getText()), ChooseMode.difflvl).start(new Stage());
         } catch (Exception e) {
             e.printStackTrace();
         }
