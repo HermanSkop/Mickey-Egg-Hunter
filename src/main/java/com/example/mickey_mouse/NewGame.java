@@ -4,9 +4,14 @@ import javafx.animation.*;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.*;
@@ -16,6 +21,7 @@ import javafx.util.Duration;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 public class NewGame extends Application{
@@ -29,6 +35,12 @@ public class NewGame extends Application{
     Label timer;
     Label tname;
     Label sname;
+
+    Button ltController;
+    Button rtController;
+    Button lbController;
+    Button rbController;
+
     int currPos;
     int hp;
     int currEgg;
@@ -37,36 +49,110 @@ public class NewGame extends Application{
     LinkedList<Egg> hpEggs;
 
     @Override
-    public void start(Stage stage) throws Exception {
-        this.stage = stage;
-        main = new AnchorPane();
-        game = this;
-        alive = true;
+    public void start(Stage stage) {
+        try {
+            this.stage = stage;
+            main = new AnchorPane();
+            game = this;
+            alive = true;
 
-        createHUD();
+            createHUD();
+            createControlButtons();
 
-        main.getChildren().add(character);
-        main.getChildren().add(score);
-        main.getChildren().add(timer);
-        main.getChildren().add(tname);
-        main.getChildren().add(sname);
+            main.getChildren().add(character);
+            main.getChildren().add(score);
+            main.getChildren().add(timer);
+            main.getChildren().add(tname);
+            main.getChildren().add(sname);
+            main.getChildren().add(lbController);
+            main.getChildren().add(ltController);
+            main.getChildren().add(rtController);
+            main.getChildren().add(rbController);
 
-        Scene scene = new Scene(main, 700, 500);
-        scene.setOnKeyTyped(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                changePosition(keyEvent);
-            }
+            Scene scene = new Scene(main, 700, 500);
+            scene.setOnKeyPressed(keyEvent -> {
+                if (new KeyCodeCombination(KeyCode.Q, KeyCombination.SHIFT_DOWN, KeyCombination.CONTROL_DOWN).match(keyEvent)) {
+                    death();
+                } else changePosition(keyEvent);
+            });
+            KeyCodeCombination a = new KeyCodeCombination(KeyCode.Q, KeyCodeCombination.SHIFT_DOWN, KeyCodeCombination.CONTROL_DOWN);
+            main.setBackground(new Background(new BackgroundImage(new Image(new FileInputStream("bg.png")), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(700, 500, true, true, true, true))));
+
+            stage.setTitle("Fight!");
+            stage.setResizable(false);
+            stage.setScene(scene);
+            stage.setOnCloseRequest(e -> {
+                try {
+                    new HelloApplication().start(new Stage());
+                } catch (IOException ex) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("ERROR");
+                    alert.setHeaderText("Some error appeared");
+                    alert.setContentText("It is not possible to run the game anymore. \n Try to reinstall the game");
+                    alert.showAndWait();
+                }
+            });
+            stage.show();
+
+            timeController();
+            runEggs(ChooseMode.difflvl);
+        }
+        catch (Exception exception){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setHeaderText("It seems that one of images is missed!");
+            alert.setContentText("It is not possible to run the game anymore. \n Try to reinstall the game");
+            alert.showAndWait();
+            alert.setOnCloseRequest(error->{
+                stage.close();
+            });
+        }
+    }
+
+    private void createControlButtons() throws FileNotFoundException {
+        ltController = new Button();
+        rtController = new Button();
+        lbController = new Button();
+        rbController = new Button();
+
+        ltController.setPrefSize(50,50);
+        rtController.setPrefSize(50,50);
+        lbController.setPrefSize(50,50);
+        rbController.setPrefSize(50,50);
+
+        AnchorPane.setLeftAnchor(ltController,297.5);
+        AnchorPane.setTopAnchor(ltController, 145.0);
+
+        AnchorPane.setRightAnchor(rtController,297.5);
+        AnchorPane.setTopAnchor(rtController, 145.0);
+
+        AnchorPane.setLeftAnchor(lbController,297.5);
+        AnchorPane.setTopAnchor(lbController, 200.0);
+
+        AnchorPane.setRightAnchor(rbController,297.5);
+        AnchorPane.setTopAnchor(rbController, 200.0);
+
+        ltController.setGraphic(new ImageView(new Image(new FileInputStream("alt.png"))));
+        rtController.setGraphic(new ImageView(new Image(new FileInputStream("art.png"))));
+        lbController.setGraphic(new ImageView(new Image(new FileInputStream("alb.png"))));
+        rbController.setGraphic(new ImageView(new Image(new FileInputStream("arb.png"))));
+
+        setControl();
+    }
+
+    private void setControl() {
+        ltController.setOnAction(e->{
+            changePosition(1);
         });
-        main.setBackground(new Background(new BackgroundImage(new Image(new FileInputStream("bg.png")), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(700, 500, true, true, true, true))));
-
-        stage.setTitle("Fight!");
-        stage.setResizable(false);
-        stage.setScene(scene);
-        stage.show();
-
-        timeController();
-        runEggs(ChooseMode.difflvl);
+        rtController.setOnAction(e->{
+            changePosition(4);
+        });
+        lbController.setOnAction(e->{
+            changePosition(2);
+        });
+        rbController.setOnAction(e->{
+            changePosition(3);
+        });
     }
 
     private void createHpBar() {
@@ -129,25 +215,62 @@ public class NewGame extends Application{
 
     void changePosition(KeyEvent e) {
         try {
-            if (Objects.equals(e.getCharacter(), "q")) {
+            if (e.getCode()== KeyCode.Q) {
                 character.setImage(new Image(new FileInputStream("ltm.png")));
                 currPos = 1;
             }
-            else if (Objects.equals(e.getCharacter(), "w")) {
+            else if (e.getCode()== KeyCode.W) {
                 character.setImage(new Image(new FileInputStream("lbm.png")));
                 currPos = 2;
             }
-            else if (Objects.equals(e.getCharacter(), "e")) {
+            else if (e.getCode()== KeyCode.E) {
                 character.setImage(new Image(new FileInputStream("rbm.png")));
                 currPos = 3;
             }
-            else if (Objects.equals(e.getCharacter(), "r")) {
+            else if (e.getCode()== KeyCode.R) {
                 character.setImage(new Image(new FileInputStream("rtm.png")));
                 currPos = 4;
             }
         }
         catch (FileNotFoundException exception){
-            System.out.println("One of the images is missed, please reinstall game!");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setHeaderText("It seems that one of images is missed!");
+            alert.setContentText("It is not possible to run the game anymore. \n Try to reinstall the game");
+            alert.showAndWait();
+            alert.setOnCloseRequest(error->{
+                stage.close();
+            });
+        }
+    }
+    void changePosition(int pos) {
+        try {
+            if (pos==1) {
+                character.setImage(new Image(new FileInputStream("ltm.png")));
+                currPos = 1;
+            }
+            else if (pos==2) {
+                character.setImage(new Image(new FileInputStream("lbm.png")));
+                currPos = 2;
+            }
+            else if (pos==3) {
+                character.setImage(new Image(new FileInputStream("rbm.png")));
+                currPos = 3;
+            }
+            else if (pos==4) {
+                character.setImage(new Image(new FileInputStream("rtm.png")));
+                currPos = 4;
+            }
+        }
+        catch (FileNotFoundException exception){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setHeaderText("It seems that one of images is missed!");
+            alert.setContentText("It is not possible to run the game anymore. \n Try to reinstall the game");
+            alert.showAndWait();
+            alert.setOnCloseRequest(e->{
+                stage.close();
+            });
         }
     }
 
@@ -201,7 +324,14 @@ public class NewGame extends Application{
                 try {
                     failFall(egg, difficulty);
                 } catch (FileNotFoundException ex) {
-                    ex.printStackTrace();
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("ERROR");
+                    alert.setHeaderText("It seems that one of images is missed!");
+                    alert.setContentText("It is not possible to run the game anymore. \n Try to reinstall the game");
+                    alert.showAndWait();
+                    alert.setOnCloseRequest(error->{
+                        stage.close();
+                    });
                 }
             }
         });
@@ -232,7 +362,14 @@ public class NewGame extends Application{
             try {
                 egg.setImage(new Image(new FileInputStream("begg.png")));
             } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setHeaderText("It seems that one of images is missed!");
+                alert.setContentText("It is not possible to run the game anymore. \n Try to reinstall the game");
+                alert.showAndWait();
+                alert.setOnCloseRequest(error->{
+                    stage.close();
+                });
             }
         });
 
@@ -259,7 +396,14 @@ public class NewGame extends Application{
             stage.close();
             new usernameWindow(Integer.parseInt(score.getText()), Integer.parseInt(timer.getText()), ChooseMode.difflvl).start(new Stage());
         } catch (Exception e) {
-            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setHeaderText("Some error appeared!");
+            alert.setContentText("It is not possible to run the game anymore. \n Try to reinstall the game");
+            alert.showAndWait();
+            alert.setOnCloseRequest(error->{
+                stage.close();
+            });
         }
     }
 }

@@ -1,15 +1,11 @@
 package com.example.mickey_mouse;
 
 import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -27,7 +23,7 @@ public class usernameWindow extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         AnchorPane main = new AnchorPane();
         area = new TextArea("Type here your name");
         area.setWrapText(true);
@@ -45,14 +41,26 @@ public class usernameWindow extends Application {
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
-        confirm.setOnAction(e->{
-            // actual saving process by ExitGame class
-            new SaveToFile(new ExitScore(filter(getUserName()), score, time, difflv));
-            stage.close();
+        stage.setOnCloseRequest(e->{
             try {
                 new HelloApplication().start(new Stage());
             } catch (IOException ex) {
                 ex.printStackTrace();
+            }
+        });
+        confirm.setOnAction(e->{
+            // Saving process
+            try {
+                new SaveToFile(new ExitScore(filter(getUserName()), score, time, difflv));
+                stage.close();
+
+                new HelloApplication().start(new Stage());
+            } catch (IOException | ClassNotFoundException ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setHeaderText("Some error appeared");
+                alert.setContentText("It is not possible to run the game anymore. \n Try to reinstall the game");
+                alert.showAndWait();
             }
         });
     }

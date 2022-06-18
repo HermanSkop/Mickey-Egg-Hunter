@@ -1,13 +1,7 @@
 package com.example.mickey_mouse;
 
-import javafx.animation.PathTransition;
-import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.util.Duration;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

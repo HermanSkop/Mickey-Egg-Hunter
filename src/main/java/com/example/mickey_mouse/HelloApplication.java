@@ -3,6 +3,7 @@ package com.example.mickey_mouse;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
@@ -21,8 +22,12 @@ public class HelloApplication extends Application {
             try {
                 stage.close();
                 new ChooseMode().start(new Stage());
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception error) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("ERROR");
+                alert.setHeaderText("Some error appeared");
+                alert.setContentText("It is not possible to run the game anymore. \n Try to reinstall the game");
+                alert.showAndWait();
             }
         });
         hs.setOnAction(e->{
